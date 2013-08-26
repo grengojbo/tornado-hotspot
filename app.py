@@ -7,6 +7,8 @@ import tornado.escape
 #from tornado.template import Template
 from tornado.template import Loader
 
+import pymysql
+
 #import json
 #import datetime
 #import time
@@ -46,6 +48,16 @@ config = {
 
 #tornado.httpclient.AsyncHTTPClient.configure("tornado.curl_httpclient.CurlAsyncHTTPClient")
 tornado.httpclient.AsyncHTTPClient()
+
+class AutoHandler(tornado.web.RequestHandler):
+    def get(self):
+        conn = pymysql.connect(host='127.0.0.1', port=3306, user='root', passwd='', db='yfi')
+        cur = conn.cursor()
+        cur.execute("SELECT username FROM radcheck limit 5")
+        for r in cur.fetchall():
+            self.write("sql: {0}".format(r))
+        cur.close()
+        conn.close()
 
 class MainHandler(tornado.web.RequestHandler):
     ''' /auto
@@ -187,7 +199,8 @@ def main():
     
     #application = tornado.web.Application(urlMap, **appSettings)
     application = tornado.web.Application([
-        (r"/", MainHandler),], **settings)
+        (r"/", MainHandler),
+        (r"/t", AutoHandler),], **settings)
     application.listen(settings.get('port'), listen_on)
     tornado.ioloop.IOLoop.instance().start()
     
