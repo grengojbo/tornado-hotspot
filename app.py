@@ -4,7 +4,8 @@ import tornado.options
 import tornado.web
 import tornado.httpclient
 import tornado.escape
-import tornado.template
+#from tornado.template import Template
+from tornado.template import Loader
 
 #import json
 #import datetime
@@ -66,7 +67,19 @@ class MainHandler(tornado.web.RequestHandler):
         md=832E8393257075F49A8791FF26D6BAD6
         """
 
-        self.res = self.get_argument("res", 'notyet')
+        res = self.get_argument("res", 'notyet')
+        if(res == 'success'):
+            userurl = self.get_argument("userurl", self.settings.get('default_url'))
+            #if (preg_match("/10\.1\.0\.1\/coova_json\/:\/\//i", $userurl))
+            #$dsite = '';
+            #$pattern = "/10\.1\.0\.1\/coova_json\/:\/\//i";
+            #$userurl = preg_replace($pattern, $dsite, $userurl);
+            self.redirect(userurl)
+            return
+        elif(res == 'failed'):
+            self.messages = 'Error'
+        else:
+            self.messages = None
         # http://109.237.88.203/c2/yfi_cake/third_parties/json_create_voucher/?key=123456789&voucher_value=1-00-00-00&profile=Free30min&realm=OceanPLaza
         # {"json":{"status":"ok"},"voucher":{"username":"100000@op","password":"PTrvs05G","id":false}}
         #INSERT INTO `vouchers` (`radcheck_id`, `user_id`, `realm_id`, `profile_id`, `modified`, `created`, `id`) VALUES (NULL, '49d09fb4-f23c-4b30-9a50-2b0ba509ff00', '49d09ec6-5480-45d4-a5ae-2b0ea509ff00', '520122be-0fb4-4b71-9fa8-03f46ded58cb', '2013-08-22 22:40:24', '2013-08-22 22:40:24', '52167738-9dcc-4ed3-900c-2fd36ded58cb') 
@@ -78,8 +91,8 @@ class MainHandler(tornado.web.RequestHandler):
         http.fetch(vg, callback=self.async_callback(self.on_response))
         #http.fetch("{0}/c2/yfi_cake/third_parties/json_create_voucher/?key=123456789&voucher_value=1-00-00-00&profile=Free30min&realm=OceanPLaza".format(hotspot_portal), callback=self.async_callback(self.on_response))
         #name = tornado.escape.xhtml_escape(self.current_user)
-        self.loaders = tornado.template.Loader(settings.get('template_path'))
-        self.write("url: " + vg)
+        self.loader = Loader(self.settings.get('template_path'))
+        #self.write("url: " + vg)
         #self.finish()
 
     def on_response(self, response):
@@ -96,13 +109,19 @@ class MainHandler(tornado.web.RequestHandler):
         userurl = self.get_argument("userurl", None)
         md = self.get_argument("md", None)
 
+        res_password = ''
+        res_username = ''
         res_json = tornado.escape.json_decode(response.body)
         #res_json = tornado.escape.json_decode(tornado.escape.native_str(response.body))
+        if(res_json['json']['status'] == 'ok'): 
+            #self.write("response body |{0}|".format(response.body))
+            res_password = res_json['voucher']['username']
+            res_username = res_json['voucher']['password']
         #self.write("response body {0}".format(res_json['json']['status']))
-        self.write("response body |{0}|".format(response.body))
         #self.write("Fetched {0}".format(str(len(json["entries"]))))
-        self.write("Hello, word {0} (res: {1})".format(response.request_time, self.res))
         #self.loader.load("auto.html").generate(uamip=uamip, uamport=uamport, challenge=challenge, userurl=userurl)
+        #self.write("Hello, word {0} (res: {1})".format(response.request_time, res))
+        self.write(self.loader.load("auto.html").generate(uamip=uamip, uamport=uamport, challenge=challenge, userurl=userurl, password=res_password, username=res_username, login_url=self.get_argument("login_url", '/login'), messages=self.messages))
         self.finish()
 
 def main():
@@ -128,7 +147,7 @@ def main():
     #settings = teg.Settings.instance()
     settings = {
 		"cookie_secret": "61oETzKXQAGaYdkL5gEmGeJJFuYh7EQnp2XdTP1o/Vo=",
-   		"login_url": "/login",
+   		"login_url": "/coova_json/login.php",
         "port": 8889,
         'template_path': os.path.join(os.path.dirname(__file__), "templates"),
         'static_path': os.path.join(os.path.dirname(__file__), "static"),
@@ -136,7 +155,8 @@ def main():
         'key': '123456789',
         'voucher_value': '0-01-00-00',
         'profile': 'Free30min',
-        'realm': 'OceanPLaza'
+        'realm': 'OceanPLaza',
+        'default_url': 'http://oceanplaza.com.ua/'
     }
 
     #settings.set('debug', options.debug)
