@@ -121,8 +121,8 @@ class MainHandler(tornado.web.RequestHandler):
                 res_password = res_json['voucher']['username']
                 res_username = res_json['voucher']['password']
             self.write(self.loader.load("auto.html").generate(uamip=uamip, uamport=uamport, challenge=challenge, userurl=userurl, password=res_password, username=res_username, login_url=self.get_argument("login_url", '/login'), messages=self.messages))
-        except ValueError, e:
-            raise tornado.web.HTTPError(500)
+        except ValueError:
+            pass
         finally:
             self.finish()
 
