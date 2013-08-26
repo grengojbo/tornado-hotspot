@@ -102,7 +102,7 @@ class MainHandler(tornado.web.RequestHandler):
         self.write("response body |{0}|".format(response.body))
         #self.write("Fetched {0}".format(str(len(json["entries"]))))
         self.write("Hello, word {0} (res: {1})".format(response.request_time, self.res))
-        self.loader.load("auto.html").generate(uamip=uamip, uamport=uamport, challenge=challenge, userurl=userurl)
+        #self.loader.load("auto.html").generate(uamip=uamip, uamport=uamport, challenge=challenge, userurl=userurl)
         self.finish()
 
 def main():
