@@ -26,8 +26,13 @@ log = logging.getLogger(__name__)
 # str 703 
 #vim /usr/share/nginx/www/c2/yfi_cake/controllers/third_parties_controller.php
 #vim /usr/share/nginx/www/cakephp-cakephp-a9b5b0c/yfi_cake/views/third_parties/json_create_voucher.ctp
+
 from tornado.options import define, options
 define("port", default=8000, help="run on the given port", type=int)
+define('debug', default=False)
+define('disable-log', default=False)
+define('disable-console-log', default=False)
+define('daemon', default=False)
 
 config = {
         'proxy_host': '58.59.21.228',
@@ -89,8 +94,8 @@ def main():
     
     #settings = teg.Settings.instance()
     settings = {
-	"cookie_secret": "61oETzKXQAGaYdkL5gEmGeJJFuYh7EQnp2XdTP1o/Vo=",
-   	"login_url": "/login",
+		"cookie_secret": "61oETzKXQAGaYdkL5gEmGeJJFuYh7EQnp2XdTP1o/Vo=",
+   		"login_url": "/login",
         "port": 8889,
     }
 
