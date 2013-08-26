@@ -45,14 +45,33 @@ config = {
 tornado.httpclient.AsyncHTTPClient()
 
 class MainHandler(tornado.web.RequestHandler):
+    ''' /auto
+    Автоматически генерируем пароль для входа
+    '''
     @tornado.web.asynchronous
     def get(self):
+        """ параметры от CoovaChilli
+        # http://10.1.0.1/coova_json/auto.php?
+        res=notyet
+        uamip=10.1.0.1
+        uamport=3990
+        challenge=a3ed364c68c5f972c232b4edc91b2d75
+        called=00-0C-29-A1-BC-F1
+        mac=F4-6D-04-39-21-98
+        ip=10.1.0.213
+        nasid=nas01
+        sessionid=521700e500000012
+        userurl=http%3a%2f%2fwww.google.com%2fig%2fredirectdomain%3fbrand%3dASUT%26bmod%3dASUT
+        md=832E8393257075F49A8791FF26D6BAD6
+        """
+
+        res = self.get_argument("res", 'notyet')
         # http://109.237.88.203/c2/yfi_cake/third_parties/json_create_voucher/?key=123456789&voucher_value=1-00-00-00&profile=Free30min&realm=OceanPLaza
         # {"json":{"status":"ok"},"voucher":{"username":"100000@op","password":"PTrvs05G","id":false}}
         #INSERT INTO `vouchers` (`radcheck_id`, `user_id`, `realm_id`, `profile_id`, `modified`, `created`, `id`) VALUES (NULL, '49d09fb4-f23c-4b30-9a50-2b0ba509ff00', '49d09ec6-5480-45d4-a5ae-2b0ea509ff00', '520122be-0fb4-4b71-9fa8-03f46ded58cb', '2013-08-22 22:40:24', '2013-08-22 22:40:24', '52167738-9dcc-4ed3-900c-2fd36ded58cb') 
         vaucher_new = "http://127.0.0.1/c2/yfi_cake/third_parties/json_create_voucher/"
         data = dict(key='123456789', voucher_value='0-01-00-00', profile='Free30min', realm='OceanPLaza')
-        vg = tornado.httputil.url_concat(vaucher_new, data)
+        vg = tornado.httputil.url_concat(self.settings.voucher_url, data)
         #http_c = tornado.httpclien.tHTTPClient()
         #response = http_c.fetch(vaucher_new, data=urlencode(data))
         http = tornado.httpclient.AsyncHTTPClient()
@@ -97,6 +116,11 @@ def main():
 		"cookie_secret": "61oETzKXQAGaYdkL5gEmGeJJFuYh7EQnp2XdTP1o/Vo=",
    		"login_url": "/login",
         "port": 8889,
+        'voucher_url': "http://127.0.0.1/c2/yfi_cake/third_parties/json_create_voucher/",
+        'key': '123456789',
+        'voucher_value': '0-01-00-00',
+        'profile': 'Free30min',
+        'realm': 'OceanPLaza'
     }
 
     #settings.set('debug', options.debug)
