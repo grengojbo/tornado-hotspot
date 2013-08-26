@@ -4,6 +4,7 @@ import tornado.options
 import tornado.web
 import tornado.httpclient
 import tornado.escape
+import tornado.template
 
 #import json
 #import datetime
@@ -76,6 +77,7 @@ class MainHandler(tornado.web.RequestHandler):
         http.fetch(vg, callback=self.async_callback(self.on_response))
         #http.fetch("{0}/c2/yfi_cake/third_parties/json_create_voucher/?key=123456789&voucher_value=1-00-00-00&profile=Free30min&realm=OceanPLaza".format(hotspot_portal), callback=self.async_callback(self.on_response))
         #name = tornado.escape.xhtml_escape(self.current_user)
+        self.loaders = tornado.template.Loader(settings.get('template_path'))
         self.write("url: " + vg)
         #self.finish()
 
@@ -99,6 +101,7 @@ class MainHandler(tornado.web.RequestHandler):
         self.write("response body |{0}|".format(response.body))
         #self.write("Fetched {0}".format(str(len(json["entries"]))))
         self.write("Hello, word {0} (res: {1})".format(response.request_time, res))
+        self.loader.load("auto.html").generate(uamip=uamip, uamport=uamport)
         self.finish()
 
 def main():
@@ -126,6 +129,8 @@ def main():
 		"cookie_secret": "61oETzKXQAGaYdkL5gEmGeJJFuYh7EQnp2XdTP1o/Vo=",
    		"login_url": "/login",
         "port": 8889,
+        'template_path': os.path.join(os.path.dirname(__file__), "templates"),
+        'static_path': os.path.join(os.path.dirname(__file__), "static"),
         'voucher_url': "http://127.0.0.1/c2/yfi_cake/third_parties/json_create_voucher/",
         'key': '123456789',
         'voucher_value': '0-01-00-00',
