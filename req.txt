@@ -1,1 +1,2 @@
 tornado
+-e git://github.com/lorien/pycurl.git#egg=pycurl
