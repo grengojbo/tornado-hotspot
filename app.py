@@ -71,7 +71,7 @@ class MainHandler(tornado.web.RequestHandler):
         #INSERT INTO `vouchers` (`radcheck_id`, `user_id`, `realm_id`, `profile_id`, `modified`, `created`, `id`) VALUES (NULL, '49d09fb4-f23c-4b30-9a50-2b0ba509ff00', '49d09ec6-5480-45d4-a5ae-2b0ea509ff00', '520122be-0fb4-4b71-9fa8-03f46ded58cb', '2013-08-22 22:40:24', '2013-08-22 22:40:24', '52167738-9dcc-4ed3-900c-2fd36ded58cb') 
         vaucher_new = "http://127.0.0.1/c2/yfi_cake/third_parties/json_create_voucher/"
         data = dict(key='123456789', voucher_value='0-01-00-00', profile='Free30min', realm='OceanPLaza')
-        vg = tornado.httputil.url_concat(self.application.settings.get('voucher_url'), data)
+        vg = tornado.httputil.url_concat(self.settings.get('voucher_url'), data)
         #http_c = tornado.httpclien.tHTTPClient()
         #response = http_c.fetch(vaucher_new, data=urlencode(data))
         http = tornado.httpclient.AsyncHTTPClient()
