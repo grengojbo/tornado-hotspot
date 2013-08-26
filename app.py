@@ -12,6 +12,7 @@ from tornado.template import Loader
 #import time
 
 import os
+import re
 import logging
 try:
     from urllib.parse import urlencode
@@ -58,9 +59,9 @@ class MainHandler(tornado.web.RequestHandler):
         uamip=10.1.0.1
         uamport=3990
         challenge=a3ed364c68c5f972c232b4edc91b2d75
-        called=00-0C-29-A1-BC-F1
-        mac=F4-6D-04-39-21-98
-        ip=10.1.0.213
+        called=00-0C-29-A1-BC-11
+        mac=F4-6D-04-39-21-00
+        ip=10.1.0.2
         nasid=nas01
         sessionid=521700e500000012
         userurl=http%3a%2f%2fwww.google.com%2fig%2fredirectdomain%3fbrand%3dASUT%26bmod%3dASUT
@@ -70,6 +71,9 @@ class MainHandler(tornado.web.RequestHandler):
         res = self.get_argument("res", 'notyet')
         if(res == 'success'):
             userurl = self.get_argument("userurl", self.settings.get('default_url'))
+            regex =re.compile("10.1.0.1/coova_json/:")
+            #if regex.search(string):
+            #    res = 
             #if (preg_match("/10\.1\.0\.1\/coova_json\/:\/\//i", $userurl))
             #$dsite = '';
             #$pattern = "/10\.1\.0\.1\/coova_json\/:\/\//i";
@@ -111,18 +115,16 @@ class MainHandler(tornado.web.RequestHandler):
 
         res_password = ''
         res_username = ''
-        res_json = tornado.escape.json_decode(response.body)
-        #res_json = tornado.escape.json_decode(tornado.escape.native_str(response.body))
-        if(res_json['json']['status'] == 'ok'): 
-            #self.write("response body |{0}|".format(response.body))
-            res_password = res_json['voucher']['username']
-            res_username = res_json['voucher']['password']
-        #self.write("response body {0}".format(res_json['json']['status']))
-        #self.write("Fetched {0}".format(str(len(json["entries"]))))
-        #self.loader.load("auto.html").generate(uamip=uamip, uamport=uamport, challenge=challenge, userurl=userurl)
-        #self.write("Hello, word {0} (res: {1})".format(response.request_time, res))
-        self.write(self.loader.load("auto.html").generate(uamip=uamip, uamport=uamport, challenge=challenge, userurl=userurl, password=res_password, username=res_username, login_url=self.get_argument("login_url", '/login'), messages=self.messages))
-        self.finish()
+        try:
+            res_json = tornado.escape.json_decode(response.body)
+            if(res_json['json']['status'] == 'ok'): 
+                res_password = res_json['voucher']['username']
+                res_username = res_json['voucher']['password']
+            self.write(self.loader.load("auto.html").generate(uamip=uamip, uamport=uamport, challenge=challenge, userurl=userurl, password=res_password, username=res_username, login_url=self.get_argument("login_url", '/login'), messages=self.messages))
+        except ValueError, e:
+            raise tornado.web.HTTPError(500)
+        finally:
+            self.finish()
 
 def main():
     parser = OptionParser()
