@@ -6,8 +6,10 @@ import tornado.httpclient
 import tornado.escape
 #from tornado.template import Template
 from tornado.template import Loader
-
-import pymysql
+try:
+    import pymysql
+except Exception:
+    pass
 
 #import json
 #import datetime
@@ -51,13 +53,17 @@ tornado.httpclient.AsyncHTTPClient()
 
 class AutoHandler(tornado.web.RequestHandler):
     def get(self):
-        conn = pymysql.connect(host='127.0.0.1', port=3306, user='root', passwd='', db='yfi')
-        cur = conn.cursor()
-        cur.execute("SELECT username FROM radcheck limit 5")
-        for r in cur.fetchall():
-            self.write("sql: {0}".format(r))
-        cur.close()
-        conn.close()
+        try:
+            conn = pymysql.connect(host='127.0.0.1', port=3306, user='root', passwd='', db='yfi')
+            cur = conn.cursor()
+            cur.execute("SELECT username FROM radcheck limit 5")
+            for r in cur.fetchall():
+                self.write("sql: {0}".format(r))
+            cur.close()
+            conn.close()
+        except Exception:
+            raise tornado.web.HTTPError(500)
+        
 
 class MainHandler(tornado.web.RequestHandler):
     ''' /auto
@@ -66,6 +72,7 @@ class MainHandler(tornado.web.RequestHandler):
     @tornado.web.asynchronous
     def get(self):
         """ параметры от CoovaChilli
+        http://10.1.0.1/?res=notyet&uamip=10.1.0.1&uamport=3990&challenge=a3ed364c68c5f972c232b4edc91b2d75&called=00-0C-29-A1-BC-F1&mac=F4-6D-04-39-21-98&ip=10.1.0.213&nasid=nas01&sessionid=521700e500000012&userurl=http%3a%2f%2fwww.google.com%2fig%2fredirectdomain%3fbrand%3dASUT%26bmod%3dASUT&md=832E8393257075F49A8791FF26D6BAD6
         # http://10.1.0.1/coova_json/auto.php?
         res=notyet
         uamip=10.1.0.1
