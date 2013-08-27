@@ -90,7 +90,8 @@ class MainHandler(tornado.web.RequestHandler):
             #$dsite = '';
             #$pattern = "/10\.1\.0\.1\/coova_json\/:\/\//i";
             #$userurl = preg_replace($pattern, $dsite, $userurl);
-            self.redirect(userurl)
+            self.write("redirect: {0}".format(userurl))
+            #self.redirect(userurl)
             return
         elif(res == 'failed'):
             self.messages = 'Error'
@@ -132,7 +133,7 @@ class MainHandler(tornado.web.RequestHandler):
             if(res_json['json']['status'] == 'ok'): 
                 res_password = res_json['voucher']['username']
                 res_username = res_json['voucher']['password']
-            self.write(self.loader.load("auto.html").generate(uamip=uamip, uamport=uamport, challenge=challenge, userurl=userurl, password=res_password, username=res_username, login_url=self.get_argument("login_url", '/login'), messages=self.messages))
+            self.write(self.loader.load('auto.html').generate(uamip=uamip, uamport=uamport, challenge=challenge, userurl=userurl, password=res_password, username=res_username, login_url=self.settings.get('login_url'), messages=self.messages))
         except ValueError:
             pass
         finally:
