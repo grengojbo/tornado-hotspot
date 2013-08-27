@@ -51,6 +51,11 @@ config = {
 #tornado.httpclient.AsyncHTTPClient.configure("tornado.curl_httpclient.CurlAsyncHTTPClient")
 tornado.httpclient.AsyncHTTPClient()
 
+class LogoutHandler(tornado.web.RequestHandler):
+    def get(self):
+        self.redirect('http://10.1.0.1:3990/logout')
+
+
 class AutoHandler(tornado.web.RequestHandler):
     def get(self):
         try:
@@ -191,9 +196,10 @@ def main():
     #    'template_path' : os.path.join(os.path.dirname(__file__), 'templates')
     #}
     
-    #urlMap = [
-    #    #Index page renderer
-    #    (r'/',                                  ui.Index),
+    urlMap = [
+        #    #Index page renderer
+        (r"/", MainHandler),
+        (r"/t", AutoHandler),
     #    (r'/ui',                                ui.Index),
     #    
     #    # REST controllers
@@ -203,12 +209,11 @@ def main():
     #    (r'/api/tag/(?P<oid>[0-9]*)',           api.Tag),
     #    (r'/api/comment',                       api.Comment),
     #    (r'/api/comment/(?P<oid>[0-9]*)',       api.Comment)
-    #]
+        (r"/logout", LogoutHandler),
+    ]
     
     #application = tornado.web.Application(urlMap, **appSettings)
-    application = tornado.web.Application([
-        (r"/", MainHandler),
-        (r"/t", AutoHandler),], **settings)
+    application = tornado.web.Application(urlMap, **settings)
     application.listen(settings.get('port'), listen_on)
     tornado.ioloop.IOLoop.instance().start()
     
