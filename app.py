@@ -199,6 +199,7 @@ def main():
     urlMap = [
         #    #Index page renderer
         (r"/", MainHandler),
+        (r"/go", MainHandler),
         (r"/t", AutoHandler),
     #    (r'/ui',                                ui.Index),
     #    
